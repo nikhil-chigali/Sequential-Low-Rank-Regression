@@ -1,7 +1,7 @@
 import numpy as np
 import numpy.linalg as la
 
-from args import GDArgs
+from .args import GDArgs
 
 
 def random_AB(args: GDArgs):
