@@ -27,6 +27,7 @@ def setup(d: int, n: int, m: int, r: int) -> tuple:
 
     # Generate the observations
     X = np.random.randn(d, n)  # d x n
+    X = X / la.norm(X, axis=0, keepdims=True)  # Normalize the columns
     Y = A_star @ B_star @ X  # m x n
 
     W_star = A_star @ B_star  # m x d
@@ -144,13 +145,14 @@ def plot_figures(X, Y, A_star, B_star, A_r, B_r, error_logs, args):
     plt.show()
 
     logger.debug("Plotting the Factors")
-    fig, ax = plt.subplots(1, 2, figsize=(12, 6))
-    ax[0].imshow(A_star @ B_star, cmap="viridis")
-    ax[0].set_title("A* @ B*")
-    ax[1].imshow(A_r @ B_r, cmap="viridis")
-    ax[1].set_title("A @ B")
-    plt.tight_layout()
-    plt.savefig(os.path.join(folder, "A_star_B_star_vs_A_r_B_r.png"))
+    # plot the A_star @ B_star - A_r @ B_r with a colorbar
+    im = plt.imshow(np.abs(A_star @ B_star - A_r @ B_r), cmap="viridis")
+    cbar = plt.colorbar(im)
+    cbar.set_label("Absolute Error")
+    plt.xlabel("Features")
+    plt.ylabel("Observations")
+    plt.title("Errors |A* @ B* - A_r @ B_r|")
+    plt.savefig(os.path.join(folder, "A_star_B_star_vs_A_r_B_r_errors.png"))
     plt.show()
 
     ranks = range(1, args.r + 1)
@@ -255,7 +257,7 @@ if __name__ == "__main__":
     argparser = ArgumentParser()
     argparser.add_argument("--d", type=int, default=100, help="Number of features")
     argparser.add_argument("--n", type=int, default=100, help="Number of samples")
-    argparser.add_argument("--m", type=int, default=100, help="Number of observations")
+    argparser.add_argument("--m", type=int, default=50, help="Number of observations")
     argparser.add_argument("--r", type=int, default=10, help="Rank of the factors")
     argparser.add_argument(
         "--orthogonalize", action="store_true", help="Orthogonalize the factors"
