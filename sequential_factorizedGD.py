@@ -8,31 +8,49 @@ from loguru import logger
 from functools import partial
 
 
-def setup(d: int, n: int, m: int, r: int) -> tuple:
-    # Generate the data
-    M = np.random.randn(m, d)
-    U, _, Vt = la.svd(M, full_matrices=False)
+def setup(d: int, n: int, m: int, r: int, setup_data: bool = False) -> tuple:
+    fname = "results/exps/setup/data.npz"
+    if setup_data:
+        # Loading data
+        data = np.load(fname, allow_pickle=True)["arr_0"].tolist()
+        X, Y, W_star, A_star, B_star = (
+            data["X"],
+            data["Y"],
+            data["W_star"],
+            data["A_star"],
+            data["B_star"],
+        )
+    else:
+        # Generate the data
+        M = np.random.randn(m, d)
+        U, _, Vt = la.svd(M, full_matrices=False)
 
-    # Strictly decaying eigenvalues
-    S = np.linspace(10, 1, num=r)
-    S_root = np.diag(np.sqrt(S))  # r x r
-    logger.debug(f"Eigenvalues: {S}")
+        # Strictly decaying eigenvalues
+        S = np.linspace(10, 1, num=r)
+        S_root = np.diag(np.sqrt(S))  # r x r
+        logger.debug(f"Eigenvalues: {S}")
 
-    # Generate the factors
-    A_star_hat = U[:, :r]
-    B_star_hat = Vt[:r, :]
+        # Generate the factors
+        A_star_hat = U[:, :r]
+        B_star_hat = Vt[:r, :]
 
-    A_star = A_star_hat @ S_root  # m x r
-    B_star = S_root @ B_star_hat  # r x d
+        A_star = A_star_hat @ S_root  # m x r
+        B_star = S_root @ B_star_hat  # r x d
 
-    # Generate the observations
-    X = np.random.randn(d, n)  # d x n
-    X = X / la.norm(X, axis=0, keepdims=True)  # Normalize the columns
-    Y = A_star @ B_star @ X  # m x n
+        # Generate the observations
+        X = np.random.randn(d, n)  # d x n
+        X = X / la.norm(X, axis=0, keepdims=True)  # Normalize the columns
+        Y = A_star @ B_star @ X  # m x n
 
-    W_star = A_star @ B_star  # m x d
+        W_star = A_star @ B_star  # m x d
 
-    logger.debug(f"Rank of W_star: {la.matrix_rank(W_star)}")
+        logger.debug(f"Rank of W_star: {la.matrix_rank(W_star)}")
+
+        logger.debug(f"Saving generated data to {fname}")
+        np.savez(
+            fname,
+            {"X": X, "Y": Y, "W_star": W_star, "A_star": A_star, "B_star": B_star},
+        )
 
     return X, Y, W_star, A_star, B_star
 
@@ -207,7 +225,7 @@ def plot_figures(X, Y, A_star, B_star, A_r, B_r, error_logs, args):
 def main(args):
     logger.info(args)
     logger.info("Setting up the data")
-    X, Y, W_star, A_star, B_star = setup(args.d, args.n, args.m, args.r)
+    X, Y, W_star, A_star, B_star = setup(args.d, args.n, args.m, args.r, args.load_data)
 
     A_r = np.zeros_like(A_star)
     B_r = np.zeros_like(B_star)
@@ -270,6 +288,9 @@ if __name__ == "__main__":
     )
     argparser.add_argument(
         "--max_iter", type=int, default=500, help="Maximum iterations"
+    )
+    argparser.add_argument(
+        "--load_data", action="store_true", help="Load setup data from .npz file"
     )
 
     args = argparser.parse_args()
