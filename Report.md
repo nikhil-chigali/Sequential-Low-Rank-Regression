@@ -2,27 +2,26 @@
 ## Setup
 1. Generate random matrix: $\mathbf{M} \in \mathbb{R}^{m \times d}$
 2. Decompose $\mathbf{M}$ into left and right singular matrices 
-$$
-    \mathbf{U} \mathbf{\Sigma} \mathbf{V}^T := SVD(\mathbf{M})
-$$
+ 
+$\mathbf{U} \mathbf{\Sigma} \mathbf{V}^T := SVD(\mathbf{M})$
+
 3. Set eigen-gaps and generate eigen values: $\delta_{\sigma} = \sigma_{i} - \sigma_{i+1}, \mathbf{\Sigma} = diag(\sigma_i)_{i=1}^{r}$
 4. Generate $\mathbf{X}, \mathbf{A^\star}, \mathbf{B^\star}, \mathbf{Y}$
     * $\mathbf{X} \in \mathbb{R}^{d \times n}$ generated from random normal distribution and row normalized
     * $\mathbf{A^\star} := \sqrt{\mathbf{\Sigma}}\mathbf{V}_{(r,:)}$, where $\mathbf{A^\star} \in \mathbb{R}^{r \times d}$ and $\mathbf{V}_{(r,:)}$ denotes first ${r}$ rows of $\mathbf{V}$
     * $\mathbf{B^\star} := \mathbf{U}_{(:,r)}\sqrt{\mathbf{\Sigma}}$, where $\mathbf{B^\star} \in \mathbb{R}^{m \times r}$ and $\mathbf{U}_{(:,r)}$ denotes first ${r}$ columns of $\mathbf{U}$
     * $\mathbf{Y} = \mathbf{B^\star}\mathbf{A^\star}\mathbf{X} + z$, where $\mathbf{Y} \in \mathbb{R}^{m \times n}$ and $z$ denotes a random gaussian noise
-5. Mean-squared error, Loss function where $\|\cdot\|_F$ denoted frobenius norm
-$$
-    \mathcal{L} = \frac{1}{2n} \|\mathbf{Y}-\mathbf{B}\mathbf{A}\mathbf{X}\|_F^2
-$$
-6. Relative error, 
-$$
-    \delta = \frac{\|\mathbf{W} - \mathbf{W^\star}\|_F}{\|\mathbf{W^\star}\|_F}
-$$
-7. Gram-Schmidt Orthogonalization, Projection of $a_r$ to be orthogonal to $a_i$ where $i = \{1, 2, \cdots, r-1\}$
-$$
-    a_r = a_{r} - \frac{a_r \cdot a_i}{a_i \cdot a_i} \cdot a_i
-$$
+3. Mean-squared error, Loss function where $\|\cdot\|_F$ denoted frobenius norm
+
+$\mathcal{L} = \frac{1}{2n} \|\mathbf{Y}-\mathbf{B}\mathbf{A}\mathbf{X}\|_F^2$
+
+4. Relative error, 
+
+$\delta = \frac{\|\mathbf{W} - \mathbf{W^\star}\|_F}{\|\mathbf{W^\star}\|_F}$
+
+5. Gram-Schmidt Orthogonalization, Projection of $a_r$ to be orthogonal to $a_i$ where $i = \{1, 2, \cdots, r-1\}$
+
+$a_r = a_{r} - \frac{a_r \cdot a_i}{a_i \cdot a_i} \cdot a_i$
 
 ## Experiments
 ### 1.1 Settings
@@ -72,22 +71,16 @@ TBD
    - Layer 2: $\mathbf{Z}_2 = ReLU(\mathbf{B}_2\mathbf{A}_2\mathbf{Z}_1)$
    - Layer 3: $\mathbf{Z}_3 = \mathbf{B}_3\mathbf{A}_3\mathbf{Z}_2$
 3. Dimensions, where $r, b$ denote rank and batch size(=64) respectively 
-$$
-    \mathbf{X} \in \mathbb{R}^{b \times 784} \\
-    \mathbf{B}_1 \in \mathbb{R}^{784 \times r}; \mathbf{A}_1 \in \mathbb{R}^{r \times 100} \\
-    \mathbf{B}_2 \in \mathbb{R}^{100 \times r}; \mathbf{A}_2 \in \mathbb{R}^{r \times 100} \\
-    \mathbf{B}_3 \in \mathbb{R}^{100 \times r}; \mathbf{A}_3 \in \mathbb{R}^{r \times 10} \\
-    \mathbf{Z}_3 \in \mathbb{R}^{b \times 10} 
-$$
+$\mathbf{X} \in \mathbb{R}^{b \times 784}$ \
+$\mathbf{B}_1 \in \mathbb{R}^{784 \times r}; \mathbf{A}_1 \in \mathbb{R}^{r \times 100}$\
+$\mathbf{B}_2 \in \mathbb{R}^{100 \times r}; \mathbf{A}_2 \in \mathbb{R}^{r \times 100}$\
+$\mathbf{B}_3 \in \mathbb{R}^{100 \times r}; \mathbf{A}_3 \in \mathbb{R}^{r \times 10}$\
+$\mathbf{Z}_3 \in \mathbb{R}^{b \times 10}$
 4. Initializations,
-$$
-    \mathbf{B}_i \sim \mathcal{N}(0,0.01); \mathbf{A}_i \sim \mathcal{N}(0,0.01); 
-$$
+$\mathbf{B}_i \sim \mathcal{N}(0,0.01); \mathbf{A}_i \sim \mathcal{N}(0,0.01)$
 5. Loss Criterion, Cross-entropy loss
-$$
-    L = - \sum_{i=1}^{n} y_i \log(\hat{y}_i)
-$$
-6. Optimizer: **Adam** with $\eta=0.001$ 
+$L = - \sum_{i=1}^{n} y_i \log(\hat{y}_i)$
+6. Optimizer: **Adam** with $\eta=0.001$
 7. SVD Orthogonalization with Norm retention,
 ```python
 def orthogonalizeAB_with_norm_retention(A, B):
