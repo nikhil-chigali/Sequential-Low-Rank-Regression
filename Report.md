@@ -120,6 +120,7 @@ def orthogonalizeAB_with_norm_retention(A, B):
 ![Before Orthogonalization](images/mnist0_1.png)
 ![After Orthogonalization](images/mnist0_2.png)
 
+## Experiments
 ### 1.1 Settings
 - rank, r = 10
 - epochs = 10
