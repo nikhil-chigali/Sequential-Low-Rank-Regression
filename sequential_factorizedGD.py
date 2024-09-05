@@ -38,6 +38,7 @@ def setup(d: int, n: int, m: int, r: int, setup_data: bool = False) -> tuple:
         B_star = S_root @ B_star_hat  # r x d
 
         # Generate the observations
+        # FIXME: Check if the data is generated correctly
         X = np.random.randn(d, n)  # d x n
         X = X / la.norm(X, axis=0, keepdims=True)  # Normalize the columns
         Y = A_star @ B_star @ X  # m x n
